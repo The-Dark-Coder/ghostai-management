@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Panel</title>
+    <style>
+        /* CSS for the menu bar */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: #fff;
+        }
+        .menu-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+        }
+        .menu-bar a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            border-radius: 20px;
+            background-color: #c0392b; /* Red color */
+        }
+        .menu-bar a:hover {
+            background-color: #e74c3c; /* Lighter red color on hover */
+        }
+        .content {
+            margin-left: 220px; /* Adjust this value to leave space for the menu bar */
+            padding: 20px;
+            width: calc(100% - 220px);
+        }
+        .content > div {
+            display: none;
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: calc(100% - 40px); /* Set the width to fill the available space */
+            margin-left: auto; /* Center the content */
+            margin-right: auto; /* Center the content */
+            text-align: center; /* Center text */
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="submit"] {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: none;
+            width: 50%; /* Adjust the width to your preference */
+            margin-left: auto; /* Center the input */
+            margin-right: auto; /* Center the input */
+            display: block; /* Ensure inputs take up full width */
+        }
+        input[type="submit"] {
+            background-color: #c0392b; /* Red color for buttons */
+            color: #fff;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #e74c3c; /* Lighter red color on hover */
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+        <a href="#home">Home</a> <!-- Added a Login button -->
+        <a href="#addUser">Add User</a>
+        <a href="#deleteUser">Delete User</a>
+        <a href="#userList">User List</a>
+        <a href="#editUser">Edit User</a>
+        <a href="#searchUser">Search User</a>
+        <a id="logoutButton" href="/logout">Logout</a> <!-- Added ID to the logout button -->
+    </div>
+    
+    <!-- Content -->
+    <div class="content">
+        <!-- Add User Section -->
+        <div id="addUser" class="active">
+            <h2>Add User</h2>
+            <form id="addUserForm">
+                <label for="addUsername">Username:</label><br>
+                <input type="text" id="addUsername" name="username"><br>
+                <label for="addPassword">Password:</label><br>
+                <input type="password" id="addPassword" name="password"><br>
+                <label for="addPro">Pro User:</label>
+                <input type="checkbox" id="addPro" name="pro" value="true"><br><br>
+                <input type="submit" value="Add User">
+            </form>
+        </div>
+        <!-- Delete User Section -->
+        <div id="deleteUser">
+            <h2>Delete User</h2>
+            <form id="deleteUserForm">
+                <label for="deleteUsername">Username:</label><br>
+                <input type="text" id="deleteUsername" name="username"><br><br>
+                <input type="submit" value="Delete User">
+            </form>
+        </div>
+        <!-- Edit User Section -->
+        <div id="editUser">
+            <h2>Edit User</h2>
+            <form id="editUserForm">
+                <label for="editUsername">Username:</label><br>
+                <input type="text" id="editUsername" name="username"><br>
+                <label for="editPro">Pro User:</label>
+                <input type="checkbox" id="editPro" name="pro" value="true"><br>
+                <label for="editNotPro">Not Pro User:</label>
+                <input type="checkbox" id="editNotPro" name="notPro" value="true"><br><br>
+                <input type="submit" value="Edit User">
+            </form>
+        </div>
+        <!-- Search User Section -->
+        <div id="searchUser">
+            <h2>Search User</h2>
+            <form id="searchUserForm">
+                <label for="searchUsername">Username:</label><br>
+                <input type="text" id="searchUsername" name="username"><br><br>
+                <input type="submit" value="Search User">
+            </form>
+        </div>
+        <!-- User List Section -->
+        <div id="userList">
+            <h2>User List</h2>
+            <div id="userListContent"></div>
+        </div>
+        <!-- Home Section -->
+        <div id="home">
+            <h2>Home</h2>
+            <div>
+                <h3>Database Metrics</h3>
+                <p id="databaseMetrics">Database is {{ database_percentage }}% full</p>
+                <h3>User Metrics</h3>
+                <p id="userMetrics">Total number of users: {{ total_users }}</p>
+            </div>
+        </div>
+        
+        
+        
+        
+    </div>
+
+    <!-- JavaScript code -->
+    <script>
+        // Function to show/hide sections based on menu selection
+        function showSection(sectionId) {
+            // Hide all sections
+            var sections = document.querySelectorAll('.content > div');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+    
+            // Show selected section
+            var selectedSection = document.getElementById(sectionId);
+            selectedSection.style.display = 'block';
+        }
+    
+        // Show the "Add User" section by default
+        showSection('addUser');
+    
+        // Function to handle menu item clicks
+        document.querySelectorAll('.menu-bar a').forEach(menuItem => {
+            menuItem.addEventListener('click', function(event) {
+                event.preventDefault();
+                var sectionId = this.getAttribute('href').substring(1);
+                showSection(sectionId);
+            });
+        });
+    
+        // Function to handle adding a new user
+        document.getElementById('addUserForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            var pro = formData.get('pro') === 'true';
+            formData.delete('pro');
+            formData.append('pro', pro);
+            fetch('/add_user', {
+                method: 'POST',
+                body: JSON.stringify(Object.fromEntries(formData.entries())),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchUserList();
+                fetchMetrics(); // Fetch metrics after adding a user
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    
+        // Function to handle deleting a user
+        document.getElementById('deleteUserForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch('/delete_user', {
+                method: 'POST',
+                body: JSON.stringify(Object.fromEntries(formData.entries())),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchUserList();
+                fetchMetrics(); // Fetch metrics after deleting a user
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    
+        // Function to fetch and display the user list
+        function fetchUserList() {
+            fetch('/user_list')
+            .then(response => response.json())
+            .then(data => {
+                var userList = document.getElementById('userListContent');
+                userList.innerHTML = '';
+
+                data.forEach(user => {
+                    var userHTML = '<div>';
+                    userHTML += '<p>User: ' + user.username + '</p>';
+                    userHTML += '<p>Password: ' + user.password + '</p>';
+                    userHTML += '<p>Pro Status: ' + user.pro + '</p>'; // Display the corrected pro status
+                    userHTML += '</div>';
+                    userHTML += '<hr>'; // Add horizontal line separator
+                    userList.innerHTML += userHTML;
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to fetch and display the metrics
+        function fetchMetrics() {
+            fetch('/metrics')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('databaseMetrics').textContent = 'Database is ' + data.database_percentage + '% full';
+                document.getElementById('userMetrics').textContent = 'Total number of users: ' + data.total_users;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to handle editing a user's pro status
+        document.getElementById('editUserForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            var isPro = formData.get('pro') === 'true';
+            var isNotPro = formData.get('notPro') === 'true';
+
+            // If both checkboxes are selected, prioritize one over the other
+            if (isPro && isNotPro) {
+                // Handle according to your application's logic
+                // For example, prioritize pro status and unset not pro status
+                isPro = true;
+                isNotPro = false;
+            }
+
+            formData.delete('pro');
+            formData.delete('notPro');
+
+            formData.append('pro', isPro);
+
+            fetch('/edit_user', {
+                method: 'POST',
+                body: JSON.stringify(Object.fromEntries(formData.entries())),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchUserList();
+                fetchMetrics(); // Fetch metrics after editing a user
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Function to handle searching for a user
+        document.getElementById('searchUserForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch('/search_user', {
+                method: 'POST',
+                body: JSON.stringify(Object.fromEntries(formData.entries())),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Check if data contains user details
+                if (data.username && data.password && data.pro !== undefined) {
+                    // Format user details
+                    var userDetails = 'User - ' + data.username + '\nPassword - ' + data.password + '\nPro Status - ' + (data.pro);
+                    alert(userDetails);
+                } else {
+                    alert('User not found');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', function(event) {
+            event.preventDefault();
+            window.location.href = this.getAttribute('href');
+        });
+
+        // Fetch user list and metrics on page load
+        fetchUserList();
+        fetchMetrics();
+    </script>
+</body>
+</html>
