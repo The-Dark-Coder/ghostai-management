@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Discord Server Info</title>
+</head>
+<body>
+    <h1>Discord Server Information</h1>
+    <p>Server Name: {{ data.name }}</p>
+    <p>Online Members: {{ data.members }}</p>
+    <p>Channels:</p>
+    <ul>
+        {% for channel in data.channels %}
+            <li>{{ channel.name }}</li>
+        {% endfor %}
+    </ul>
+    <!-- Add more data as needed -->
+</body>
+</html>
