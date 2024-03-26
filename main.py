@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from pymongo import MongoClient
+import requests
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -82,22 +83,22 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/discord')
-def home():
-    return '''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Embedded Webpage</title>
-    </head>
-    <body>
-        <h1>Embedded Content</h1>
-        <iframe src="https://discord.com" width="100%" height="600px">
-            <p>Your browser does not support iframes.</p>
-        </iframe>
-    </body>
-    </html>
-    '''
+
+app.route('/discord')
+def discord():
+    # Make a request to Discord's API to fetch some data
+    response = requests.get('https://discord.com/api/v8/guilds/{guild_id}/widget.json')
+
+    if response.status_code == 200:
+        data = response.json()
+        # Render a template with the data
+        return render_template('discord.html', data=data)
+    else:
+        return 'Error fetching data from Discord API'
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 
 @app.route('/add_user', methods=['POST'])
