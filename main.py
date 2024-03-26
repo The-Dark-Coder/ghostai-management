@@ -96,9 +96,6 @@ def discord():
     else:
         return 'Error fetching data from Discord API'
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
 
 
 @app.route('/add_user', methods=['POST'])
