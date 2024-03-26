@@ -82,6 +82,24 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/discord')
+def home():
+    return '''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Embedded Webpage</title>
+    </head>
+    <body>
+        <h1>Embedded Content</h1>
+        <iframe src="https://discord.com" width="100%" height="600px">
+            <p>Your browser does not support iframes.</p>
+        </iframe>
+    </body>
+    </html>
+    '''
+
+
 @app.route('/add_user', methods=['POST'])
 def add_user():
     data = request.json
